@@ -9,7 +9,6 @@ import Button from '@/components/ui/Button';
 const Header = () => {
   const { accessToken, logout } = useAuthStore();
   const user = decodeAccessToken(accessToken);
-  console.log(user);
 
   return (
     <header className="flex items-center justify-between p-4 shadow-md">
@@ -18,6 +17,9 @@ const Header = () => {
       </Link>
 
       <nav className="space-x-6">
+        <Link href="/events" className="hover:text-blue-600">
+          Home
+        </Link>
         <Link href="/events" className="hover:text-blue-600">
           Sự kiện
         </Link>
