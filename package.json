@@ -15,6 +15,7 @@
     "@types/cookie": "^0.6.0",
     "axios": "^1.8.1",
     "js-cookie": "^3.0.5",
+    "jwt-decode": "^4.0.0",
     "lucide-react": "^0.477.0",
     "next": "14.2.15",
     "nookies": "^2.5.2",
