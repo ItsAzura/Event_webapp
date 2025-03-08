@@ -4,6 +4,7 @@ import React from 'react';
 import { useEffect } from 'react';
 import { useEventStore } from '@/store/eventStore';
 import Image from 'next/image';
+import { dateFormat } from '@/utils/dateFormat';
 
 const OutstandingEvent = () => {
   const { topEvents, fetchTopEvents } = useEventStore();
@@ -50,7 +51,7 @@ const OutstandingEvent = () => {
               <div className="p-6">
                 <div className="mb-3 flex items-center gap-2 text-gray-500">
                   <CalendarIcon className="h-5 w-5" />
-                  <span>{event.eventDate}</span>
+                  <span>{dateFormat(event.eventDate)}</span>
                 </div>
                 <h3 className="mb-2 text-2xl font-bold text-slate-900">
                   {event.eventName}

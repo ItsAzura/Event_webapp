@@ -58,3 +58,37 @@ export const events = [
     type: 'Premium',
   },
 ];
+
+export const eventTimeLine = [
+  {
+    date: '2024-10-15',
+    title: 'Lễ hội Âm nhạc Mùa Thu',
+    location: 'Hà Nội',
+    time: '18:00 - 23:00',
+    description:
+      'Lễ hội âm nhạc sôi động với sự tham gia của nhiều nghệ sĩ hàng đầu.',
+  },
+  {
+    date: '2024-10-20',
+    title: 'Đêm nhạc EDM Festival',
+    location: 'TP.HCM',
+    time: '19:00 - 02:00',
+    description:
+      'Sự kiện EDM hoành tráng với DJ quốc tế và dàn âm thanh ánh sáng cực chất.',
+  },
+  {
+    date: '2024-10-25',
+    title: 'Rock Show - Huyền thoại trở lại',
+    location: 'Đà Nẵng',
+    time: '17:30 - 22:30',
+    description: 'Đêm nhạc Rock cháy hết mình cùng các ban nhạc huyền thoại.',
+  },
+  {
+    date: '2024-10-30',
+    title: 'Acoustic Night - Giai điệu yêu thương',
+    location: 'Hải Phòng',
+    time: '20:00 - 23:00',
+    description:
+      'Đêm nhạc nhẹ nhàng với những ca khúc Acoustic sâu lắng, đầy cảm xúc.',
+  },
+];

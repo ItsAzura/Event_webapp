@@ -1,14 +1,15 @@
 'use client';
 
-import Image from 'next/image';
-import { motion } from 'framer-motion';
-import Link from 'next/link';
-import { ArrowRightIcon } from '@heroicons/react/24/solid';
-import { categories } from '@/data';
 import OutstandingEvent from '@/components/ui/OutstandingEvent';
 import PopularCategory from '@/components/ui/PopularCategory';
 import HeroSection from '@/components/ui/HeroSection';
 import CTASection from '@/components/ui/CTASection';
+import FeaturedSpeakers from '@/components/ui/FeaturedSpeakers';
+import EventTimeline from '@/components/ui/EventTimeline';
+import Testimonials from '@/components/ui/Testimonials';
+import Partners from '@/components/ui/Partners';
+import FAQ from '@/components/ui/FAQ';
+import Newsletter from '@/components/ui/Newsletter';
 
 const HomePage = () => {
   return (
@@ -21,6 +22,13 @@ const HomePage = () => {
 
       {/* Event Carousel Section */}
       <OutstandingEvent />
+
+      {/* <FeaturedSpeakers /> */}
+      <EventTimeline />
+      <Testimonials />
+      {/* <Partners /> */}
+      <FAQ />
+      <Newsletter />
 
       {/* CTA Section với Gradient Animation */}
       <CTASection />
