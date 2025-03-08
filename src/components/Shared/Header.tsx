@@ -9,6 +9,7 @@ import Button from '@/components/ui/Button';
 const Header = () => {
   const { accessToken, logout } = useAuthStore();
   const user = decodeAccessToken(accessToken);
+  console.log(user);
 
   return (
     <header className="flex items-center justify-between p-4 shadow-md">
@@ -29,6 +30,11 @@ const Header = () => {
         <Link href="/contact" className="hover:text-blue-600">
           Liên hệ
         </Link>
+        {user && user.role === '1' && (
+          <Link href="/admin" className="hover:text-blue-600">
+            Admin
+          </Link>
+        )}
       </nav>
 
       <div>

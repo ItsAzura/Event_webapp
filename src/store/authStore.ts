@@ -18,7 +18,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   initializeFromCookies: () => {
     const cookies = parseCookies();
-    console.log('Cookies khi load app:', cookies); // 🔥 Debug
     set({
       accessToken: cookies.accessToken || null,
       refreshToken: cookies.refreshToken || null,
