@@ -18,7 +18,7 @@ const Header = () => {
       </Link>
 
       <nav className="space-x-6">
-        <Link href="/events" className="hover:text-blue-600">
+        <Link href="/" className="hover:text-blue-600">
           Home
         </Link>
         <Link href="/events" className="hover:text-blue-600">
