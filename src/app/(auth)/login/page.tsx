@@ -8,13 +8,21 @@ import { LoginData } from '@/types/index';
 import { toast } from 'react-toastify';
 import { loginSchema } from '@/schemas/authSchema';
 import { useAuthStore } from '@/store/authStore';
+import { decodeAccessToken } from '@/utils/decodeAccessToken';
 
 const Login = () => {
   const [userData, setUserData] = useState<LoginData>({
     email: '',
     passwordHash: '',
   });
-  const { login } = useAuthStore();
+  const { login, accessToken } = useAuthStore();
+  const user = decodeAccessToken(accessToken);
+
+  if (user) {
+    window.location.href = '/';
+  }
+
+  console.log(user);
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();

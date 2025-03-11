@@ -11,9 +11,9 @@
     "format": "prettier --write ."
   },
   "dependencies": {
-    "@heroicons/react": "^2.2.0",
+    "@heroicons/react": "^2.0.0",
     "@types/cookie": "^0.6.0",
-    "axios": "^1.8.1",
+    "axios": "^1.8.2",
     "framer-motion": "^12.4.10",
     "js-cookie": "^3.0.5",
     "jwt-decode": "^4.0.0",

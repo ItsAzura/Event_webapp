@@ -40,3 +40,11 @@ export interface Category {
   categoryName: string;
   categoryImage: string;
 }
+
+export interface ApiResponse {
+  totalCount: number;
+  totalPages: number;
+  currentPage: number;
+  pageSize: number;
+  events: Event[];
+}

@@ -12,6 +12,8 @@ import { RegisterData } from '@/types/index';
 import { toast } from 'react-toastify';
 import { RegisterSchema } from '@/schemas/authSchema';
 import { useAuthStore } from '@/store/authStore';
+import { decodeAccessToken } from '@/utils/decodeAccessToken';
+import { register } from '@/services/auth/api';
 
 const Register = () => {
   const [userData, setUserData] = useState<RegisterData>({
@@ -20,7 +22,12 @@ const Register = () => {
     passwordHash: '',
   });
   const [confirmPassword, setConfirmPassword] = useState('');
-  const { register } = useAuthStore();
+  const { accessToken } = useAuthStore();
+  const user = decodeAccessToken(accessToken);
+
+  if (user) {
+    window.location.href = '/';
+  }
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
