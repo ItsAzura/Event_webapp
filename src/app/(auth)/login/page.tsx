@@ -22,14 +22,10 @@ const Login = () => {
     window.location.href = '/';
   }
 
-  console.log(user);
-
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
     try {
-      console.log(userData);
-
       const result = loginSchema.safeParse(userData);
       if (!result.success) {
         toast.error(result.error.errors[0].message);

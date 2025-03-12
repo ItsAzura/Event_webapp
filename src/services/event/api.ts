@@ -1,14 +1,4 @@
-import axios from 'axios';
-import https from 'https';
-
-const api = axios.create({
-  baseURL: 'https://localhost:7198/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: true,
-  httpsAgent: new https.Agent({ rejectUnauthorized: false }), // Bỏ qua SSL
-});
+import api from '@/services/api';
 
 export const getEvents = async (
   page: number = 1,
@@ -24,6 +14,17 @@ export const getEvents = async (
     return response.data;
   } catch (error) {
     console.error('Get events error', error);
+    throw error;
+  }
+};
+
+export const getEventById = async (id: number) => {
+  try {
+    const response = await api.get(`/Event/${id}`);
+
+    return response;
+  } catch (error) {
+    console.error('Get event by id error', error);
     throw error;
   }
 };

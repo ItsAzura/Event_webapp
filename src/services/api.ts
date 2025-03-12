@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useAuthStore } from '@/store/authStore';
 import { parseCookies, setCookie } from 'nookies';
+import https from 'https';
 
 // Địa chỉ API
 const API_URL = 'https://localhost:7198/api';
@@ -12,6 +13,7 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
   withCredentials: true,
+  httpsAgent: new https.Agent({ rejectUnauthorized: false }), // Bỏ qua SSL
 });
 
 //Đảm bảo rằng mọi request đều có token

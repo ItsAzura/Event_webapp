@@ -48,3 +48,20 @@ export interface ApiResponse {
   pageSize: number;
   events: Event[];
 }
+export interface EventArea {
+  eventAreaID: number;
+  areaName: string;
+  capacity: number;
+  price?: number;
+}
+
+export interface Ticket {
+  ticketID: number;
+  eventAreaID: number;
+  ticketName: string;
+  description: string;
+  quantity: number;
+  price: number;
+  status: string;
+  eventArea: null;
+}

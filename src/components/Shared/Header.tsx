@@ -9,7 +9,6 @@ import Button from '@/components/ui/Button';
 const Header = () => {
   const { accessToken, logout } = useAuthStore();
   const user = decodeAccessToken(accessToken);
-  console.log(user);
 
   return (
     <header className="flex items-center justify-between p-4 shadow-md">
