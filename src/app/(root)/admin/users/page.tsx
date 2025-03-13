@@ -10,6 +10,12 @@ import api from '@/services/api';
 import { useAuthStore } from '@/store/authStore';
 import { decodeAccessToken } from '@/utils/decodeAccessToken';
 import { toast } from 'react-toastify';
+import {
+  getAllUsers,
+  addUser,
+  updateUser,
+  deleteUser,
+} from '@/services/admin/api';
 
 interface UserType {
   userID: number;
@@ -77,9 +83,7 @@ export default function AdminUsersTable() {
         params.append('search', searchTerm);
       }
 
-      const response = await api(
-        `https://localhost:7198/api/user?${params.toString()}`,
-      );
+      const response = await getAllUsers(params.toString());
       if (response.status !== 200) {
         throw new Error('Failed to fetch users');
       }
@@ -113,10 +117,7 @@ export default function AdminUsersTable() {
   // Add user
   const handleAddUser = async () => {
     try {
-      const response = await api.post(
-        'https://localhost:7198/api/user',
-        newUser,
-      );
+      const response = await addUser(newUser);
 
       console.log('Add user response:', response);
 
@@ -155,12 +156,7 @@ export default function AdminUsersTable() {
     }
 
     try {
-      const response = await api(
-        `https://localhost:7198/api/user/${selectedUserId}`,
-        {
-          method: 'DELETE',
-        },
-      );
+      const response = await deleteUser(selectedUserId.toString());
 
       console.log('Delete response:', response);
 
@@ -200,16 +196,7 @@ export default function AdminUsersTable() {
     };
 
     try {
-      const response = await api(
-        `https://localhost:7198/api/user/${user.userID}`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          data: updatedUser, // Không cần JSON.stringify vì Axios tự động convert
-        },
-      );
+      const response = await updateUser(user.userID.toString(), updatedUser);
 
       console.log('Update user response:', response);
 
