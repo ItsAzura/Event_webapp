@@ -63,7 +63,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   logout: async () => {
-    await api.post('/auth/logout', { refreshToken: get().refreshToken });
+    // await api.post('/auth/logout', { refreshToken: get().refreshToken });
 
     // Xóa cookie và Zustand store
     destroyCookie(null, 'accessToken', { path: '/' });

@@ -32,7 +32,15 @@ const Login = () => {
         return;
       }
 
-      await login(userData.email, userData.passwordHash);
+      try {
+        await login(userData.email, userData.passwordHash);
+      } catch (loginError: any) {
+        if (loginError.status === 400) {
+          toast.error('Sai tên đăng nhập hoặc mật khẩu');
+          return;
+        }
+        throw loginError;
+      }
 
       toast.success('Đăng nhập thành công');
       setUserData({ email: '', passwordHash: '' });
