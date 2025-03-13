@@ -6,6 +6,10 @@ import {
   PencilIcon,
   TrashIcon,
 } from '@heroicons/react/24/outline';
+import api from '@/services/api';
+import { useAuthStore } from '@/store/authStore';
+import { decodeAccessToken } from '@/utils/decodeAccessToken';
+import { toast } from 'react-toastify';
 
 interface UserType {
   userID: number;
@@ -20,6 +24,9 @@ const roleMap: { [key: number]: string } = {
 };
 
 export default function AdminUsersTable() {
+  const { accessToken } = useAuthStore();
+  const user = decodeAccessToken(accessToken);
+
   const [users, setUsers] = useState<UserType[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState<number | null>(null);
@@ -27,12 +34,36 @@ export default function AdminUsersTable() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const itemsPerPage = 10;
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+
+  const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
+  const [newUser, setNewUser] = useState({
+    UserName: '',
+    Email: '',
+    PasswordHash: '',
+  });
+
+  const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<{
+    userID: number | null;
+    userName: string;
+    email: string;
+    roleID: number;
+    passwordHash: string;
+  }>({
+    userID: null,
+    userName: '',
+    email: '',
+    roleID: 0,
+    passwordHash: '',
+  });
+
+  // Fetch users
   const fetchUsers = useCallback(async () => {
     setLoading(true);
-    setError(null);
 
     try {
       const params = new URLSearchParams({
@@ -46,21 +77,24 @@ export default function AdminUsersTable() {
         params.append('search', searchTerm);
       }
 
-      const response = await fetch(
+      const response = await api(
         `https://localhost:7198/api/user?${params.toString()}`,
       );
-      if (!response.ok) {
+      if (response.status !== 200) {
         throw new Error('Failed to fetch users');
       }
 
-      const data = await response.json();
+      const data = response.data;
       console.log('Fetched Data:', data);
       setUsers(data.users || []);
       setTotalPages(data.totalPages || 0);
       setTotalCount(data.totalCount || 0);
     } catch (error: unknown) {
-      setError(
-        error instanceof Error ? error.message : 'An unknown error occurred',
+      console.error('Failed to fetch users', error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'An unknown error occurred while fetching users',
       );
     } finally {
       setLoading(false);
@@ -71,39 +105,147 @@ export default function AdminUsersTable() {
     fetchUsers();
   }, [fetchUsers]);
 
-  const handleDelete = async (userId: number) => {
-    if (confirm('Bạn có chắc chắn muốn xóa người dùng này?')) {
-      try {
-        const response = await fetch(
-          `https://localhost:7198/api/user/${userId}`,
-          {
-            method: 'DELETE',
-          },
-        );
+  const openAddUserModal = () => {
+    setNewUser({ UserName: '', Email: '', PasswordHash: '' });
+    setIsAddUserModalOpen(true);
+  };
 
-        if (!response.ok) throw new Error('Xóa không thành công');
-        fetchUsers();
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : 'An unknown error occurred',
-        );
+  // Add user
+  const handleAddUser = async () => {
+    try {
+      const response = await api.post(
+        'https://localhost:7198/api/user',
+        newUser,
+      );
+
+      console.log('Add user response:', response);
+
+      if (response.status !== 201) {
+        toast.error('Thêm người dùng thất bại');
+        return console.error('Failed to add user');
       }
+
+      toast.success('Thêm người dùng thành công');
+      fetchUsers(); // Cập nhật danh sách user
+      setIsAddUserModalOpen(false); // Đóng popup
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : 'An unknown error occurred',
+      );
     }
   };
 
-  console.log(users);
+  const openDeleteModal = (userId: number) => {
+    setSelectedUserId(userId);
+    setIsModalOpen(true);
+  };
+
+  // Delete user
+  const handleDeleteConfirmed = async () => {
+    if (!selectedUserId) return;
+
+    if (user?.id === selectedUserId.toString()) {
+      toast.error('Không thể xóa chính mình');
+      return;
+    }
+
+    if (selectedUserId === 1) {
+      toast.error('Không thể xóa người dùng Admin');
+      return;
+    }
+
+    try {
+      const response = await api(
+        `https://localhost:7198/api/user/${selectedUserId}`,
+        {
+          method: 'DELETE',
+        },
+      );
+
+      console.log('Delete response:', response);
+
+      if (response.status !== 200) {
+        toast.error('Xóa người dùng thất bại');
+        return console.error('Failed to delete user');
+      }
+
+      fetchUsers(); // Cập nhật lại danh sách người dùng
+      setIsModalOpen(false); // Đóng popup sau khi xóa thành công
+      toast.success('Xóa người dùng thành công');
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : 'An unknown error occurred',
+      );
+    }
+  };
+
+  const handleUpdateUser = async (user: {
+    userID: number;
+    userName?: string;
+    email?: string;
+    roleID?: number;
+    passwordHash?: string;
+  }) => {
+    if (user.userID === 1) {
+      toast.error('Không thể cập nhật người dùng Admin');
+      return;
+    }
+
+    // Chỉ lấy các field cần gửi lên API
+    const updatedUser = {
+      userName: user.userName,
+      email: user.email,
+      passwordHash: user.passwordHash,
+      roleID: user.roleID,
+    };
+
+    try {
+      const response = await api(
+        `https://localhost:7198/api/user/${user.userID}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          data: updatedUser, // Không cần JSON.stringify vì Axios tự động convert
+        },
+      );
+
+      console.log('Update user response:', response);
+
+      if (response.status !== 200) {
+        toast.error('Cập nhật người dùng thất bại');
+        return console.error('Failed to update user');
+      }
+
+      toast.success('Cập nhật người dùng thành công');
+      fetchUsers(); // Cập nhật danh sách user
+      setIsEditUserModalOpen(false); // Đóng popup
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Lỗi không xác định');
+    }
+  };
 
   return (
     <div className="ml-64 min-h-screen bg-gray-50 p-6">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-blue-800">
-            Quản lý Người dùng
-          </h1>
-          <p className="mt-2 text-gray-600">
-            Quản lý và giám sát tài khoản người dùng hệ thống
-          </p>
+        <div className="mb-8 flex items-center justify-between">
+          <div className="">
+            <h1 className="text-3xl font-bold text-blue-800">
+              Quản lý Người dùng
+            </h1>
+            <p className="mt-2 text-gray-600">
+              Quản lý và giám sát tài khoản người dùng hệ thống
+            </p>
+          </div>
+
+          <button
+            className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+            onClick={openAddUserModal}
+          >
+            Thêm người dùng
+          </button>
         </div>
 
         {/* Controls */}
@@ -130,17 +272,9 @@ export default function AdminUsersTable() {
           >
             <option value="all">Tất cả vai trò</option>
             <option value="1">Admin</option>
-            <option value="2">Organizer</option>
-            <option value="3">User</option>
+            <option value="2">User</option>
           </select>
         </div>
-
-        {/* Error & Loading */}
-        {error && (
-          <div className="mb-4 rounded-lg bg-red-100 p-4 text-red-700">
-            {error}
-          </div>
-        )}
 
         {/* Table */}
         <div className="overflow-hidden rounded-xl bg-white shadow-lg">
@@ -197,13 +331,16 @@ export default function AdminUsersTable() {
                         <td className="flex gap-3 px-6 py-4">
                           <button
                             className="text-blue-600 transition-colors hover:text-blue-900"
-                            onClick={() => console.log('Edit', user.userID)}
+                            onClick={() => {
+                              setEditingUser({ ...user, passwordHash: '' });
+                              setIsEditUserModalOpen(true); // Mở popup
+                            }}
                           >
                             <PencilIcon className="h-5 w-5" />
                           </button>
                           <button
                             className="text-red-600 transition-colors hover:text-red-900"
-                            onClick={() => handleDelete(user.userID)}
+                            onClick={() => openDeleteModal(user.userID)}
                           >
                             <TrashIcon className="h-5 w-5" />
                           </button>
@@ -256,6 +393,184 @@ export default function AdminUsersTable() {
           )}
         </div>
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="w-96 rounded-lg bg-white p-6 shadow-lg">
+            <h2 className="text-lg font-semibold text-gray-800">
+              Xác nhận xóa người dùng?
+            </h2>
+            <p className="mt-2 text-gray-600">
+              Bạn có chắc chắn muốn xóa người dùng này không?
+            </p>
+            <div className="mt-4 flex justify-end gap-3">
+              <button
+                className="rounded bg-gray-200 px-4 py-2 text-gray-700 hover:bg-gray-300"
+                onClick={() => setIsModalOpen(false)}
+              >
+                Hủy
+              </button>
+              <button
+                className="rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+                onClick={handleDeleteConfirmed}
+              >
+                Xóa
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isAddUserModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="w-96 rounded-lg bg-white p-6 shadow-lg">
+            <h2 className="text-lg font-semibold text-gray-800">
+              Thêm Người Dùng
+            </h2>
+
+            {/* Nhập tên */}
+            <label className="mt-4 block text-sm font-medium text-gray-700">
+              Tên
+            </label>
+            <input
+              type="text"
+              className="w-full rounded-md border px-3 py-2 text-gray-800"
+              value={newUser.UserName}
+              onChange={e =>
+                setNewUser({ ...newUser, UserName: e.target.value })
+              }
+            />
+
+            {/* Nhập email */}
+            <label className="mt-4 block text-sm font-medium text-gray-700">
+              Email
+            </label>
+            <input
+              type="email"
+              className="w-full rounded-md border px-3 py-2 text-gray-800"
+              value={newUser.Email}
+              onChange={e => setNewUser({ ...newUser, Email: e.target.value })}
+            />
+
+            {/* Nhập mật khẩu */}
+            <label className="mt-4 block text-sm font-medium text-gray-700">
+              Mật khẩu
+            </label>
+            <input
+              type="password"
+              className="w-full rounded-md border px-3 py-2 text-gray-800"
+              value={newUser.PasswordHash}
+              onChange={e =>
+                setNewUser({ ...newUser, PasswordHash: e.target.value })
+              }
+            />
+
+            {/* Nút hành động */}
+            <div className="mt-4 flex justify-end gap-3">
+              <button
+                className="rounded bg-gray-200 px-4 py-2 text-gray-700 hover:bg-gray-300"
+                onClick={() => setIsAddUserModalOpen(false)}
+              >
+                Hủy
+              </button>
+              <button
+                className="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+                onClick={handleAddUser}
+              >
+                Thêm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isEditUserModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="w-96 rounded-lg bg-white p-6 shadow-lg">
+            <h2 className="text-lg font-semibold text-gray-800">
+              Chỉnh sửa Người Dùng
+            </h2>
+
+            {/* Nhập tên */}
+            <label className="mt-4 block text-sm font-medium text-gray-700">
+              Tên
+            </label>
+            <input
+              type="text"
+              className="w-full rounded-md border px-3 py-2 text-gray-800"
+              value={editingUser.userName}
+              onChange={e =>
+                setEditingUser({ ...editingUser, userName: e.target.value })
+              }
+            />
+
+            {/* Nhập email */}
+            <label className="mt-4 block text-sm font-medium text-gray-700">
+              Email
+            </label>
+            <input
+              type="email"
+              className="w-full rounded-md border px-3 py-2 text-gray-800"
+              value={editingUser.email}
+              onChange={e =>
+                setEditingUser({ ...editingUser, email: e.target.value })
+              }
+            />
+
+            {/* Nhập vai trò */}
+            <label className="mt-4 block text-sm font-medium text-gray-700">
+              Role
+            </label>
+            <input
+              type="number"
+              className="w-full rounded-md border px-3 py-2 text-gray-800"
+              value={editingUser.roleID}
+              onChange={e =>
+                setEditingUser({
+                  ...editingUser,
+                  roleID: Number(e.target.value),
+                })
+              }
+            />
+
+            {/* Nhập mật khẩu mới */}
+            <label className="mt-4 block text-sm font-medium text-gray-700">
+              Mật khẩu mới
+            </label>
+            <input
+              type="password"
+              className="w-full rounded-md border px-3 py-2 text-gray-800"
+              value={editingUser.passwordHash}
+              onChange={e =>
+                setEditingUser({ ...editingUser, passwordHash: e.target.value })
+              }
+            />
+
+            {/* Nút hành động */}
+            <div className="mt-4 flex justify-end gap-3">
+              <button
+                className="rounded bg-gray-200 px-4 py-2 text-gray-700 hover:bg-gray-300"
+                onClick={() => setIsEditUserModalOpen(false)}
+              >
+                Hủy
+              </button>
+              <button
+                className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                onClick={() => {
+                  if (editingUser.userID !== null) {
+                    handleUpdateUser({
+                      ...editingUser,
+                      userID: editingUser.userID,
+                    });
+                  }
+                }}
+              >
+                Lưu
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
