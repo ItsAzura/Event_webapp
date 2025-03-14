@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   MagnifyingGlassIcon,
   PencilIcon,
   TrashIcon,
 } from '@heroicons/react/24/outline';
-import api from '@/services/api';
 import { useAuthStore } from '@/store/authStore';
 import { decodeAccessToken } from '@/utils/decodeAccessToken';
 import { toast } from 'react-toastify';
@@ -214,42 +214,59 @@ export default function AdminUsersTable() {
   };
 
   return (
-    <div className="ml-64 min-h-screen bg-gray-50 p-6">
-      <div className="mx-auto max-w-7xl">
+    <div className="ml-64 min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mx-auto max-w-7xl"
+      >
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
-          <div className="">
-            <h1 className="text-3xl font-bold text-blue-800">
-              Quản lý Người dùng
-            </h1>
-            <p className="mt-2 text-gray-600">
+          <div>
+            <motion.h1
+              initial={{ x: -20 }}
+              animate={{ x: 0 }}
+              className="text-3xl font-bold text-white"
+            >
+              Quản lý{' '}
+              <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+                Người dùng
+              </span>
+            </motion.h1>
+            <p className="mt-2 text-gray-400">
               Quản lý và giám sát tài khoản người dùng hệ thống
             </p>
           </div>
 
-          <button
-            className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 px-6 py-3 text-white shadow-lg transition-all hover:shadow-blue-500/30"
             onClick={openAddUserModal}
           >
             Thêm người dùng
-          </button>
+          </motion.button>
         </div>
 
         {/* Controls */}
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="mb-6 flex flex-col gap-4 sm:flex-row"
+        >
           <div className="relative flex-1">
             <input
               type="text"
               placeholder="Tìm kiếm người dùng..."
-              className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-gray-700 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-12 py-3 text-white backdrop-blur-lg transition-all placeholder:text-gray-400 focus:border-purple-500/30 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
             />
-            <MagnifyingGlassIcon className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+            <MagnifyingGlassIcon className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
           </div>
 
           <select
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 focus:border-transparent focus:ring-2 focus:ring-blue-500 sm:w-48"
+            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white backdrop-blur-lg transition-all focus:border-purple-500/30 focus:outline-none focus:ring-2 focus:ring-purple-500/20 sm:w-48"
             value={selectedRole ?? 'all'}
             onChange={e =>
               setSelectedRole(
@@ -261,303 +278,371 @@ export default function AdminUsersTable() {
             <option value="1">Admin</option>
             <option value="2">User</option>
           </select>
-        </div>
+        </motion.div>
 
         {/* Table */}
-        <div className="overflow-hidden rounded-xl bg-white shadow-lg">
+        <div className="overflow-hidden rounded-xl border border-white/10 bg-gray-900/30 backdrop-blur-lg">
           {loading ? (
-            <div className="flex h-96 items-center justify-center">
-              <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+            // Skeleton Loading
+            <div className="space-y-4 p-6">
+              {[...Array(5)].map((_, i) => (
+                <div
+                  key={i}
+                  className="h-16 animate-pulse rounded-xl bg-gray-800/50"
+                />
+              ))}
             </div>
           ) : (
             <>
               <table className="w-full">
-                <thead className="bg-blue-50">
+                <thead className="border-b border-white/10 bg-gray-800/20">
                   <tr>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-blue-800">
-                      Tên
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-blue-800">
-                      Email
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-blue-800">
-                      Vai trò
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-blue-800">
-                      Hành động
-                    </th>
+                    {['Tên', 'Email', 'Vai trò', 'Hành động'].map(
+                      (header, i) => (
+                        <th
+                          key={i}
+                          className="px-6 py-4 text-left text-sm font-semibold text-purple-400"
+                        >
+                          {header}
+                        </th>
+                      ),
+                    )}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200 text-gray-700">
-                  {users &&
-                    users.map(user => (
-                      <tr
+                <tbody className="divide-y divide-white/10">
+                  <AnimatePresence>
+                    {users.map(user => (
+                      <motion.tr
                         key={user.userID}
-                        className="transition-colors hover:bg-gray-50"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        className="transition-colors hover:bg-gray-800/20"
                       >
-                        <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                        <td className="px-6 py-4 text-sm font-medium text-white">
                           {user.userName}
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-600">
+                        <td className="px-6 py-4 text-sm text-gray-400">
                           {user.email}
                         </td>
                         <td className="px-6 py-4">
-                          <span
-                            className={`rounded-full px-3 py-1 text-sm ${
+                          <motion.span
+                            className={`rounded-full px-3 py-1 text-sm font-medium ${
                               user.roleID === 1
-                                ? 'bg-purple-100 text-purple-800'
-                                : user.roleID === 2
-                                  ? 'bg-orange-100 text-orange-800'
-                                  : 'bg-gray-100 text-gray-800'
+                                ? 'bg-purple-500/20 text-purple-400'
+                                : 'bg-blue-500/20 text-blue-400'
                             }`}
                           >
                             {roleMap[user.roleID]}
-                          </span>
+                          </motion.span>
                         </td>
-
                         <td className="flex gap-3 px-6 py-4">
-                          <button
-                            className="text-blue-600 transition-colors hover:text-blue-900"
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            className="text-purple-400 transition-colors hover:text-purple-300"
                             onClick={() => {
                               setEditingUser({ ...user, passwordHash: '' });
-                              setIsEditUserModalOpen(true); // Mở popup
+                              setIsEditUserModalOpen(true);
                             }}
                           >
                             <PencilIcon className="h-5 w-5" />
-                          </button>
-                          <button
-                            className="text-red-600 transition-colors hover:text-red-900"
+                          </motion.button>
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            className="text-red-400 transition-colors hover:text-red-300"
                             onClick={() => openDeleteModal(user.userID)}
                           >
                             <TrashIcon className="h-5 w-5" />
-                          </button>
+                          </motion.button>
                         </td>
-                      </tr>
+                      </motion.tr>
                     ))}
+                  </AnimatePresence>
                 </tbody>
               </table>
 
               {/* Pagination */}
-              <div className="flex items-center justify-between border-t border-gray-200 px-6 py-4">
-                <div className="text-sm text-gray-600">
-                  Hiển thị {(currentPage - 1) * itemsPerPage + 1} -{' '}
-                  {Math.min(currentPage * itemsPerPage, totalCount)} của{' '}
-                  {totalCount} kết quả
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    className="rounded-lg border border-gray-300 px-4 py-2 text-gray-800 hover:bg-gray-50 disabled:opacity-50"
-                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                    disabled={currentPage === 1}
-                  >
-                    Previous
-                  </button>
-                  {Array.from({ length: totalPages }).map((_, i) => (
-                    <button
-                      key={i}
-                      className={`rounded-lg px-4 py-2 ${
-                        currentPage === i + 1
-                          ? 'bg-blue-600 text-white'
-                          : 'border border-gray-300 hover:bg-gray-50'
-                      }`}
-                      onClick={() => setCurrentPage(i + 1)}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="border-t border-white/10 px-6 py-4"
+              >
+                <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+                  <span className="text-sm text-gray-400">
+                    Hiển thị {(currentPage - 1) * itemsPerPage + 1} -{' '}
+                    {Math.min(currentPage * itemsPerPage, totalCount)} của{' '}
+                    {totalCount} kết quả
+                  </span>
+                  <div className="flex gap-2">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white backdrop-blur-lg transition-all hover:bg-white/10 disabled:opacity-50"
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
                     >
-                      {i + 1}
-                    </button>
-                  ))}
-                  <button
-                    className="rounded-lg border border-gray-300 px-4 py-2 text-gray-800 hover:bg-gray-50 disabled:opacity-50"
-                    onClick={() =>
-                      setCurrentPage(p => Math.min(p + 1, totalPages))
-                    }
-                    disabled={currentPage === totalPages}
-                  >
-                    Next
-                  </button>
+                      Previous
+                    </motion.button>
+                    {Array.from({ length: totalPages }).map((_, i) => (
+                      <motion.button
+                        key={i}
+                        whileHover={{ scale: 1.05 }}
+                        className={`rounded-xl px-4 py-2 text-sm ${
+                          currentPage === i + 1
+                            ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white'
+                            : 'border border-white/10 bg-white/5 text-white hover:bg-white/10'
+                        }`}
+                        onClick={() => setCurrentPage(i + 1)}
+                      >
+                        {i + 1}
+                      </motion.button>
+                    ))}
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white backdrop-blur-lg transition-all hover:bg-white/10 disabled:opacity-50"
+                      onClick={() =>
+                        setCurrentPage(p => Math.min(p + 1, totalPages))
+                      }
+                      disabled={currentPage === totalPages}
+                    >
+                      Next
+                    </motion.button>
+                  </div>
                 </div>
-              </div>
+              </motion.div>
             </>
           )}
         </div>
-      </div>
+      </motion.div>
 
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-96 rounded-lg bg-white p-6 shadow-lg">
-            <h2 className="text-lg font-semibold text-gray-800">
-              Xác nhận xóa người dùng?
-            </h2>
-            <p className="mt-2 text-gray-600">
-              Bạn có chắc chắn muốn xóa người dùng này không?
-            </p>
-            <div className="mt-4 flex justify-end gap-3">
-              <button
-                className="rounded bg-gray-200 px-4 py-2 text-gray-700 hover:bg-gray-300"
-                onClick={() => setIsModalOpen(false)}
-              >
-                Hủy
-              </button>
-              <button
-                className="rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700"
-                onClick={handleDeleteConfirmed}
-              >
-                Xóa
-              </button>
+      {/* Modals */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.95 }}
+              animate={{ scale: 1 }}
+              className="w-96 rounded-2xl border border-white/10 bg-gray-900/50 p-6 backdrop-blur-lg"
+            >
+              <h2 className="text-xl font-semibold text-white">
+                Xác nhận xóa người dùng?
+              </h2>
+              <p className="mt-2 text-gray-400">
+                Bạn có chắc chắn muốn xóa người dùng này không?
+              </p>
+              <div className="mt-6 flex justify-end gap-3">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-white backdrop-blur-lg transition-all hover:bg-white/10"
+                  onClick={() => setIsModalOpen(false)}
+                >
+                  Hủy
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="rounded-xl bg-gradient-to-r from-red-500 to-pink-500 px-4 py-2 text-white shadow-lg transition-all hover:shadow-red-500/30"
+                  onClick={handleDeleteConfirmed}
+                >
+                  Xóa
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {isModalOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="w-96 rounded-lg bg-white p-6 shadow-lg">
+              <h2 className="text-lg font-semibold text-gray-800">
+                Xác nhận xóa người dùng?
+              </h2>
+              <p className="mt-2 text-gray-600">
+                Bạn có chắc chắn muốn xóa người dùng này không?
+              </p>
+              <div className="mt-4 flex justify-end gap-3">
+                <button
+                  className="rounded bg-gray-200 px-4 py-2 text-gray-700 hover:bg-gray-300"
+                  onClick={() => setIsModalOpen(false)}
+                >
+                  Hủy
+                </button>
+                <button
+                  className="rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+                  onClick={handleDeleteConfirmed}
+                >
+                  Xóa
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {isAddUserModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-96 rounded-lg bg-white p-6 shadow-lg">
-            <h2 className="text-lg font-semibold text-gray-800">
-              Thêm Người Dùng
-            </h2>
+        {isAddUserModalOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="w-96 rounded-lg bg-white p-6 shadow-lg">
+              <h2 className="text-lg font-semibold text-gray-800">
+                Thêm Người Dùng
+              </h2>
 
-            {/* Nhập tên */}
-            <label className="mt-4 block text-sm font-medium text-gray-700">
-              Tên
-            </label>
-            <input
-              type="text"
-              className="w-full rounded-md border px-3 py-2 text-gray-800"
-              value={newUser.UserName}
-              onChange={e =>
-                setNewUser({ ...newUser, UserName: e.target.value })
-              }
-            />
+              {/* Nhập tên */}
+              <label className="mt-4 block text-sm font-medium text-gray-700">
+                Tên
+              </label>
+              <input
+                type="text"
+                className="w-full rounded-md border px-3 py-2 text-gray-800"
+                value={newUser.UserName}
+                onChange={e =>
+                  setNewUser({ ...newUser, UserName: e.target.value })
+                }
+              />
 
-            {/* Nhập email */}
-            <label className="mt-4 block text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <input
-              type="email"
-              className="w-full rounded-md border px-3 py-2 text-gray-800"
-              value={newUser.Email}
-              onChange={e => setNewUser({ ...newUser, Email: e.target.value })}
-            />
+              {/* Nhập email */}
+              <label className="mt-4 block text-sm font-medium text-gray-700">
+                Email
+              </label>
+              <input
+                type="email"
+                className="w-full rounded-md border px-3 py-2 text-gray-800"
+                value={newUser.Email}
+                onChange={e =>
+                  setNewUser({ ...newUser, Email: e.target.value })
+                }
+              />
 
-            {/* Nhập mật khẩu */}
-            <label className="mt-4 block text-sm font-medium text-gray-700">
-              Mật khẩu
-            </label>
-            <input
-              type="password"
-              className="w-full rounded-md border px-3 py-2 text-gray-800"
-              value={newUser.PasswordHash}
-              onChange={e =>
-                setNewUser({ ...newUser, PasswordHash: e.target.value })
-              }
-            />
+              {/* Nhập mật khẩu */}
+              <label className="mt-4 block text-sm font-medium text-gray-700">
+                Mật khẩu
+              </label>
+              <input
+                type="password"
+                className="w-full rounded-md border px-3 py-2 text-gray-800"
+                value={newUser.PasswordHash}
+                onChange={e =>
+                  setNewUser({ ...newUser, PasswordHash: e.target.value })
+                }
+              />
 
-            {/* Nút hành động */}
-            <div className="mt-4 flex justify-end gap-3">
-              <button
-                className="rounded bg-gray-200 px-4 py-2 text-gray-700 hover:bg-gray-300"
-                onClick={() => setIsAddUserModalOpen(false)}
-              >
-                Hủy
-              </button>
-              <button
-                className="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700"
-                onClick={handleAddUser}
-              >
-                Thêm
-              </button>
+              {/* Nút hành động */}
+              <div className="mt-4 flex justify-end gap-3">
+                <button
+                  className="rounded bg-gray-200 px-4 py-2 text-gray-700 hover:bg-gray-300"
+                  onClick={() => setIsAddUserModalOpen(false)}
+                >
+                  Hủy
+                </button>
+                <button
+                  className="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+                  onClick={handleAddUser}
+                >
+                  Thêm
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {isEditUserModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-96 rounded-lg bg-white p-6 shadow-lg">
-            <h2 className="text-lg font-semibold text-gray-800">
-              Chỉnh sửa Người Dùng
-            </h2>
+        {isEditUserModalOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="w-96 rounded-lg bg-white p-6 shadow-lg">
+              <h2 className="text-lg font-semibold text-gray-800">
+                Chỉnh sửa Người Dùng
+              </h2>
 
-            {/* Nhập tên */}
-            <label className="mt-4 block text-sm font-medium text-gray-700">
-              Tên
-            </label>
-            <input
-              type="text"
-              className="w-full rounded-md border px-3 py-2 text-gray-800"
-              value={editingUser.userName}
-              onChange={e =>
-                setEditingUser({ ...editingUser, userName: e.target.value })
-              }
-            />
+              {/* Nhập tên */}
+              <label className="mt-4 block text-sm font-medium text-gray-700">
+                Tên
+              </label>
+              <input
+                type="text"
+                className="w-full rounded-md border px-3 py-2 text-gray-800"
+                value={editingUser.userName}
+                onChange={e =>
+                  setEditingUser({ ...editingUser, userName: e.target.value })
+                }
+              />
 
-            {/* Nhập email */}
-            <label className="mt-4 block text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <input
-              type="email"
-              className="w-full rounded-md border px-3 py-2 text-gray-800"
-              value={editingUser.email}
-              onChange={e =>
-                setEditingUser({ ...editingUser, email: e.target.value })
-              }
-            />
+              {/* Nhập email */}
+              <label className="mt-4 block text-sm font-medium text-gray-700">
+                Email
+              </label>
+              <input
+                type="email"
+                className="w-full rounded-md border px-3 py-2 text-gray-800"
+                value={editingUser.email}
+                onChange={e =>
+                  setEditingUser({ ...editingUser, email: e.target.value })
+                }
+              />
 
-            {/* Nhập vai trò */}
-            <label className="mt-4 block text-sm font-medium text-gray-700">
-              Role
-            </label>
-            <input
-              type="number"
-              className="w-full rounded-md border px-3 py-2 text-gray-800"
-              value={editingUser.roleID}
-              onChange={e =>
-                setEditingUser({
-                  ...editingUser,
-                  roleID: Number(e.target.value),
-                })
-              }
-            />
+              {/* Nhập vai trò */}
+              <label className="mt-4 block text-sm font-medium text-gray-700">
+                Role
+              </label>
+              <input
+                type="number"
+                className="w-full rounded-md border px-3 py-2 text-gray-800"
+                value={editingUser.roleID}
+                onChange={e =>
+                  setEditingUser({
+                    ...editingUser,
+                    roleID: Number(e.target.value),
+                  })
+                }
+              />
 
-            {/* Nhập mật khẩu mới */}
-            <label className="mt-4 block text-sm font-medium text-gray-700">
-              Mật khẩu mới
-            </label>
-            <input
-              type="password"
-              className="w-full rounded-md border px-3 py-2 text-gray-800"
-              value={editingUser.passwordHash}
-              onChange={e =>
-                setEditingUser({ ...editingUser, passwordHash: e.target.value })
-              }
-            />
+              {/* Nhập mật khẩu mới */}
+              <label className="mt-4 block text-sm font-medium text-gray-700">
+                Mật khẩu mới
+              </label>
+              <input
+                type="password"
+                className="w-full rounded-md border px-3 py-2 text-gray-800"
+                value={editingUser.passwordHash}
+                onChange={e =>
+                  setEditingUser({
+                    ...editingUser,
+                    passwordHash: e.target.value,
+                  })
+                }
+              />
 
-            {/* Nút hành động */}
-            <div className="mt-4 flex justify-end gap-3">
-              <button
-                className="rounded bg-gray-200 px-4 py-2 text-gray-700 hover:bg-gray-300"
-                onClick={() => setIsEditUserModalOpen(false)}
-              >
-                Hủy
-              </button>
-              <button
-                className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-                onClick={() => {
-                  if (editingUser.userID !== null) {
-                    handleUpdateUser({
-                      ...editingUser,
-                      userID: editingUser.userID,
-                    });
-                  }
-                }}
-              >
-                Lưu
-              </button>
+              {/* Nút hành động */}
+              <div className="mt-4 flex justify-end gap-3">
+                <button
+                  className="rounded bg-gray-200 px-4 py-2 text-gray-700 hover:bg-gray-300"
+                  onClick={() => setIsEditUserModalOpen(false)}
+                >
+                  Hủy
+                </button>
+                <button
+                  className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                  onClick={() => {
+                    if (editingUser.userID !== null) {
+                      handleUpdateUser({
+                        ...editingUser,
+                        userID: editingUser.userID,
+                      });
+                    }
+                  }}
+                >
+                  Lưu
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 }

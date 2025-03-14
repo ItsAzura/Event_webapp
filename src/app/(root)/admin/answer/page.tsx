@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { CheckCircle, Send } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Contact } from '@/types/index';
 import { useAuthStore } from '@/store/authStore';
 import { decodeAccessToken } from '@/utils/decodeAccessToken';
@@ -66,90 +66,150 @@ export default function ContactAdminPage() {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="mx-auto ml-64 max-w-5xl p-6"
+      className="ml-64 min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-8"
     >
-      <h1 className="mb-4 text-2xl font-bold">Contact Management</h1>
-      <div className="overflow-hidden rounded-lg bg-white shadow-lg">
-        <table className="w-full min-w-full border-collapse">
-          <thead className="bg-gradient-to-r from-blue-500 to-purple-500 text-white">
+      <motion.h1
+        initial={{ x: -20 }}
+        animate={{ x: 0 }}
+        className="mb-8 text-3xl font-bold text-white"
+      >
+        Contact{' '}
+        <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+          Management
+        </span>
+      </motion.h1>
+
+      <div className="overflow-hidden rounded-xl border border-white/10 bg-gray-900/30 backdrop-blur-lg">
+        <table className="w-full">
+          <thead className="border-b border-white/10 bg-gray-800/20">
             <tr>
-              <th className="p-3 text-left">Name</th>
-              <th className="p-3 text-left">Email</th>
-              <th className="p-3 text-left">Message</th>
-              <th className="p-3 text-left">Created At</th>
-              <th className="p-3 text-left">Status</th>
-              <th className="p-3 text-left">Action</th>
+              {[
+                'Name',
+                'Email',
+                'Message',
+                'Created At',
+                'Status',
+                'Action',
+              ].map((header, index) => (
+                <th
+                  key={index}
+                  className="p-4 text-left text-sm font-semibold text-purple-400"
+                >
+                  {header}
+                </th>
+              ))}
             </tr>
           </thead>
+
           <tbody>
-            {contacts.map((contact, index) => (
-              <motion.tr
-                key={contact.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="border-b text-gray-800 transition duration-200 hover:bg-gray-50"
-              >
-                <td className="p-3">{contact.name}</td>
-                <td className="p-3">{contact.email}</td>
-                <td className="p-3">{contact.message}</td>
-                <td className="p-3">
-                  {new Date(contact.createdAt).toLocaleString()}
-                </td>
-                <td className="p-3">
-                  {contact.isResponded ? (
-                    <CheckCircle className="text-green-500" />
-                  ) : (
-                    <span className="text-red-500">Pending</span>
-                  )}
-                </td>
-                <td className="p-3">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => handleOpenPopup(contact)}
-                    disabled={contact.isResponded}
-                    className={`flex items-center gap-2 rounded-lg px-4 py-2 text-white transition duration-300 ${contact.isResponded ? 'cursor-not-allowed bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'}`}
-                  >
-                    <Send size={16} /> Send Contact
-                  </motion.button>
-                </td>
-              </motion.tr>
-            ))}
+            <AnimatePresence>
+              {contacts.map((contact, index) => (
+                <motion.tr
+                  key={contact.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="border-b border-white/10 text-gray-300 transition-colors hover:bg-gray-800/20"
+                >
+                  <td className="p-4">{contact.name}</td>
+                  <td className="p-4">{contact.email}</td>
+                  <td className="max-w-xs truncate p-4">{contact.message}</td>
+                  <td className="p-4">
+                    {new Date(contact.createdAt).toLocaleString()}
+                  </td>
+                  <td className="p-4">
+                    {contact.isResponded ? (
+                      <div className="flex items-center gap-2 text-green-400">
+                        <CheckCircle className="h-5 w-5" />
+                        <span className="text-sm">Responded</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 text-yellow-400">
+                        <div className="h-2 w-2 animate-pulse rounded-full bg-yellow-400" />
+                        <span className="text-sm">Pending</span>
+                      </div>
+                    )}
+                  </td>
+                  <td className="p-4">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => handleOpenPopup(contact)}
+                      disabled={contact.isResponded}
+                      className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all ${
+                        contact.isResponded
+                          ? 'cursor-not-allowed bg-gray-700/50 text-gray-500'
+                          : 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg hover:shadow-blue-500/30'
+                      }`}
+                    >
+                      <Send size={16} /> Respond
+                    </motion.button>
+                  </td>
+                </motion.tr>
+              ))}
+            </AnimatePresence>
           </tbody>
         </table>
       </div>
 
-      {open && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-96 rounded-lg bg-white p-6 shadow-lg">
-            <h2 className="mb-4 text-xl font-bold text-gray-800">
-              Respond to Contact
-            </h2>
-            <textarea
-              className="w-full rounded-md border p-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your response..."
-              value={responseMessage}
-              onChange={e => setResponseMessage(e.target.value)}
-            />
-            <div className="mt-4 flex justify-end gap-2">
-              <button
-                className="rounded-md bg-gray-500 px-4 py-2 text-white"
-                onClick={() => setOpen(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className="rounded-md bg-blue-500 px-4 py-2 text-white"
-                onClick={handleSendContact}
-                disabled={!responseMessage.trim()}
-              >
-                Send Response
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.95 }}
+              animate={{ scale: 1 }}
+              className="w-full max-w-2xl rounded-2xl border border-white/10 bg-gray-900/50 p-6 backdrop-blur-lg"
+            >
+              <h2 className="mb-6 text-2xl font-bold text-white">
+                Respond to Contact
+              </h2>
+
+              <div className="space-y-4">
+                <div className="rounded-xl bg-gray-800/50 p-4">
+                  <p className="text-sm text-gray-400">Original Message</p>
+                  <p className="mt-2 text-gray-300">
+                    {selectedContact?.message}
+                  </p>
+                </div>
+
+                <textarea
+                  className="w-full rounded-xl border border-white/10 bg-gray-800/50 p-4 text-white backdrop-blur-lg placeholder:text-gray-500 focus:border-purple-500/30 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                  placeholder="Type your response..."
+                  rows={5}
+                  value={responseMessage}
+                  onChange={e => setResponseMessage(e.target.value)}
+                />
+              </div>
+
+              <div className="mt-6 flex justify-end gap-3">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="rounded-xl border border-white/10 bg-white/5 px-6 py-2 text-white backdrop-blur-lg transition-all hover:bg-white/10"
+                  onClick={() => setOpen(false)}
+                >
+                  Cancel
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 px-6 py-2 text-white shadow-lg transition-all hover:shadow-blue-500/30 disabled:opacity-50"
+                  onClick={handleSendContact}
+                  disabled={!responseMessage.trim()}
+                >
+                  Send Response
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

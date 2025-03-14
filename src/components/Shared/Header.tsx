@@ -11,7 +11,7 @@ const Header = () => {
   const user = decodeAccessToken(accessToken);
 
   return (
-    <header className="flex items-center justify-between p-4 shadow-md">
+    <header className="flex items-center justify-between border-b border-gray-700/20 bg-gray-800/70 p-4 backdrop-blur-lg">
       <Link href="/" className="text-2xl font-bold text-blue-600">
         Eventify
       </Link>
