@@ -16,6 +16,7 @@ import {
   updateUser,
   deleteUser,
 } from '@/services/admin/api';
+import { UserSchema } from '@/schemas/userSchema';
 
 interface UserType {
   userID: number;
@@ -89,7 +90,6 @@ export default function AdminUsersTable() {
       }
 
       const data = response.data;
-      console.log('Fetched Data:', data);
       setUsers(data.users || []);
       setTotalPages(data.totalPages || 0);
       setTotalCount(data.totalCount || 0);
@@ -117,9 +117,13 @@ export default function AdminUsersTable() {
   // Add user
   const handleAddUser = async () => {
     try {
-      const response = await addUser(newUser);
+      const result = UserSchema.safeParse(newUser);
+      if (!result.success) {
+        toast.error(result.error.errors[0].message);
+        return;
+      }
 
-      console.log('Add user response:', response);
+      const response = await addUser(newUser);
 
       if (response.status !== 201) {
         toast.error('Thêm người dùng thất bại');
@@ -158,8 +162,6 @@ export default function AdminUsersTable() {
     try {
       const response = await deleteUser(selectedUserId.toString());
 
-      console.log('Delete response:', response);
-
       if (response.status !== 200) {
         toast.error('Xóa người dùng thất bại');
         return console.error('Failed to delete user');
@@ -197,8 +199,6 @@ export default function AdminUsersTable() {
 
     try {
       const response = await updateUser(user.userID.toString(), updatedUser);
-
-      console.log('Update user response:', response);
 
       if (response.status !== 200) {
         toast.error('Cập nhật người dùng thất bại');

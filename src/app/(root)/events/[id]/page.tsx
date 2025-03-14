@@ -57,8 +57,6 @@ const page = () => {
   const fetchEvent = async () => {
     try {
       const response = await getEventById(Number(id));
-      console.log('Event API Response:', response); // Kiểm tra toàn bộ response
-      console.log('Event Data:', response.data);
 
       if (Array.isArray(response.data)) {
         setEvent(response.data[0]); // Nếu API trả về mảng, lấy phần tử đầu tiên
@@ -73,8 +71,6 @@ const page = () => {
   const fetchEventAreas = async () => {
     try {
       const response = await getEventAreasByEventId(Number(id));
-      console.log('Event Areas API Response:', response);
-      console.log('Event Areas Data:', response.data); // Kiểm tra response.data
 
       if (Array.isArray(response.data)) {
         setEventAreas(response.data); // Nếu API trả về array, set bình thường

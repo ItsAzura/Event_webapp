@@ -64,9 +64,6 @@ const EventDetailPage = () => {
     fetchTickets();
   }, [id]);
 
-  console.log('Event Area:', eventArea);
-  console.log('Tickets:', tickets);
-
   return (
     <motion.div
       initial={{ opacity: 0 }}

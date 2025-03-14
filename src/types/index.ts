@@ -65,3 +65,18 @@ export interface Ticket {
   status: string;
   eventArea: null;
 }
+
+export interface Contact {
+  id: number;
+  name: string;
+  email: string;
+  message: string;
+  createdAt: string;
+  isResponded: boolean;
+}
+
+export interface ContactResponse {
+  id: number;
+  responseMessage: string;
+  adminEmail: string;
+}

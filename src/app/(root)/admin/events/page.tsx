@@ -2,7 +2,6 @@
 import { useState, useEffect, JSX } from 'react';
 import {
   MagnifyingGlassIcon,
-  FunnelIcon,
   CalendarIcon,
   UserGroupIcon,
 } from '@heroicons/react/24/outline';
@@ -48,7 +47,6 @@ export default function EventManagementPage() {
         });
 
         const response = await getEvents(params.toString());
-        console.log(response);
         setData(response.data);
       } catch (err) {
         setError('Failed to fetch events');
@@ -79,8 +77,6 @@ export default function EventManagementPage() {
       toast.error('Failed to reject event');
     }
   };
-
-  console.log(data);
 
   if (error) return <div className="p-4 text-red-500">{error}</div>;
 

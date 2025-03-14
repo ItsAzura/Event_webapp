@@ -4,16 +4,40 @@ import { useState } from 'react';
 import { Mail, MapPin, Phone } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
+import { ContactSchema } from '@/schemas/contactShema';
+import { createContact } from '@/services/contact/api';
+import { useAuthStore } from '@/store/authStore';
+import { decodeAccessToken } from '@/utils/decodeAccessToken';
 
 export default function ContactForm() {
+  const { accessToken, logout } = useAuthStore();
+  const user = decodeAccessToken(accessToken);
   const [form, setForm] = useState({ name: '', email: '', message: '' });
 
-  const handleChange = (e: { target: { name: any; value: any } }) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e: { preventDefault: () => void }) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (user?.id === '1') {
+      toast.error('Tài khoản admin không thể gửi tin nhắn!');
+      return;
+    }
+
+    try {
+      const result = ContactSchema.safeParse(form);
+      if (!result.success) {
+        return toast.error(result.error.errors[0].message);
+      }
+
+      const response = await createContact(form);
+
+      if (response.status !== 200) {
+        toast.error('Có lỗi xảy ra khi gửi tin nhắn!');
+        return;
+      }
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+
     toast.success('Tin nhắn của bạn đã được gửi thành công!');
     setForm({ name: '', email: '', message: '' });
   };
@@ -51,7 +75,7 @@ export default function ContactForm() {
               name="name"
               placeholder="Nhập họ tên của bạn..."
               value={form.name}
-              onChange={handleChange}
+              onChange={e => setForm({ ...form, name: e.target.value })}
               required
               className="w-full rounded-2xl border-2 border-purple-100 bg-white p-5 text-lg text-purple-900 shadow-lg transition-all hover:border-purple-200 focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-200"
             />
@@ -62,7 +86,7 @@ export default function ContactForm() {
               name="email"
               placeholder="Địa chỉ email của bạn..."
               value={form.email}
-              onChange={handleChange}
+              onChange={e => setForm({ ...form, email: e.target.value })}
               required
               className="w-full rounded-2xl border-2 border-purple-100 bg-white p-5 text-lg text-purple-900 shadow-lg transition-all hover:border-purple-200 focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-200"
             />
@@ -72,7 +96,7 @@ export default function ContactForm() {
               name="message"
               placeholder="Nội dung tin nhắn..."
               value={form.message}
-              onChange={handleChange}
+              onChange={e => setForm({ ...form, message: e.target.value })}
               required
               rows={5}
               className="w-full rounded-2xl border-2 border-purple-100 bg-white p-5 text-lg text-purple-900 shadow-lg transition-all hover:border-purple-200 focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-200"
