@@ -17,13 +17,7 @@ import {
   deleteUser,
 } from '@/services/admin/api';
 import { UserSchema } from '@/schemas/userSchema';
-
-interface UserType {
-  userID: number;
-  userName: string;
-  email: string;
-  roleID: number;
-}
+import { AddUserData, User } from '@/types/index';
 
 const roleMap: { [key: number]: string } = {
   1: 'Admin',
@@ -34,7 +28,7 @@ export default function AdminUsersTable() {
   const { accessToken } = useAuthStore();
   const user = decodeAccessToken(accessToken);
 
-  const [users, setUsers] = useState<UserType[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -47,10 +41,10 @@ export default function AdminUsersTable() {
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
 
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
-  const [newUser, setNewUser] = useState({
-    UserName: '',
-    Email: '',
-    PasswordHash: '',
+  const [newUser, setNewUser] = useState<AddUserData>({
+    userName: '',
+    email: '',
+    passwordHash: '',
   });
 
   const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
@@ -110,7 +104,7 @@ export default function AdminUsersTable() {
   }, [fetchUsers]);
 
   const openAddUserModal = () => {
-    setNewUser({ UserName: '', Email: '', PasswordHash: '' });
+    setNewUser({ userName: '', email: '', passwordHash: '' });
     setIsAddUserModalOpen(true);
   };
 
@@ -191,10 +185,10 @@ export default function AdminUsersTable() {
 
     // Chỉ lấy các field cần gửi lên API
     const updatedUser = {
-      userName: user.userName,
-      email: user.email,
-      passwordHash: user.passwordHash,
-      roleID: user.roleID,
+      userName: user.userName || null,
+      email: user.email || null,
+      passwordHash: user.passwordHash || null,
+      roleID: user.roleID || null,
     };
 
     try {
@@ -274,9 +268,15 @@ export default function AdminUsersTable() {
               )
             }
           >
-            <option value="all">Tất cả vai trò</option>
-            <option value="1">Admin</option>
-            <option value="2">User</option>
+            <option value="all" className="text-gray-800">
+              Tất cả vai trò
+            </option>
+            <option value="1" className="text-gray-800">
+              Admin
+            </option>
+            <option value="2" className="text-gray-800">
+              User
+            </option>
           </select>
         </motion.div>
 
@@ -501,9 +501,9 @@ export default function AdminUsersTable() {
               <input
                 type="text"
                 className="w-full rounded-md border px-3 py-2 text-gray-800"
-                value={newUser.UserName}
+                value={newUser.userName}
                 onChange={e =>
-                  setNewUser({ ...newUser, UserName: e.target.value })
+                  setNewUser({ ...newUser, userName: e.target.value })
                 }
               />
 
@@ -514,9 +514,9 @@ export default function AdminUsersTable() {
               <input
                 type="email"
                 className="w-full rounded-md border px-3 py-2 text-gray-800"
-                value={newUser.Email}
+                value={newUser.email}
                 onChange={e =>
-                  setNewUser({ ...newUser, Email: e.target.value })
+                  setNewUser({ ...newUser, email: e.target.value })
                 }
               />
 
@@ -527,9 +527,9 @@ export default function AdminUsersTable() {
               <input
                 type="password"
                 className="w-full rounded-md border px-3 py-2 text-gray-800"
-                value={newUser.PasswordHash}
+                value={newUser.passwordHash}
                 onChange={e =>
-                  setNewUser({ ...newUser, PasswordHash: e.target.value })
+                  setNewUser({ ...newUser, passwordHash: e.target.value })
                 }
               />
 

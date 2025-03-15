@@ -9,17 +9,10 @@ import {
 import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/solid';
 import { getEvents, eventApprove, eventReject } from '@/services/admin/api';
 import { toast } from 'react-toastify';
-
-interface Event {
-  eventID: number;
-  eventName: string;
-  createdBy: string;
-  eventDate: string;
-  eventStatus: 'Pending' | 'Approved' | 'Rejected';
-}
+import { Event } from '@/types/index';
 
 interface ApiResponse {
-  map(arg0: (event: any) => JSX.Element): unknown;
+  map(arg0: (event: Event) => JSX.Element): unknown;
   totalCount: number;
   totalPages: number;
   currentPage: number;

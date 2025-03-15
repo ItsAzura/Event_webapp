@@ -53,8 +53,8 @@ const Register = () => {
       setTimeout(() => {
         window.location.href = '/login';
       }, 2000);
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'An error occurred');
     }
   };
 

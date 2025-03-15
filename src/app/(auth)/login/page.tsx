@@ -34,12 +34,13 @@ const Login = () => {
 
       try {
         await login(userData.email, userData.passwordHash);
-      } catch (loginError: any) {
-        if (loginError.status === 400) {
+      } catch (error: unknown) {
+        const loginError = error as { status?: number };
+        if (loginError && loginError.status === 400) {
           toast.error('Sai tên đăng nhập hoặc mật khẩu');
           return;
         }
-        throw loginError;
+        throw error;
       }
 
       toast.success('Đăng nhập thành công');
@@ -48,8 +49,10 @@ const Login = () => {
       setTimeout(() => {
         window.location.href = '/';
       }, 2000);
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'An unexpected error occurred',
+      );
     }
   };
 

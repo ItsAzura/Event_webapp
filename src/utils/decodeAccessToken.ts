@@ -1,18 +1,25 @@
 import { DecodedToken } from './../types/index';
 import { jwtDecode } from 'jwt-decode';
 
+interface CustomJwtPayload {
+  'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier': string;
+  'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name': string;
+  'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress': string;
+  'http://schemas.microsoft.com/ws/2008/06/identity/claims/role': string;
+  exp: number;
+}
+
 export const decodeAccessToken = (
   token: string | null,
 ): DecodedToken | null => {
   if (!token) return null;
-
   // Loại bỏ tiền tố "Bearer " nếu có
   const formattedToken = token.startsWith('Bearer ')
     ? token.substring(7).trim()
     : token.trim();
 
   try {
-    const decoded: any = jwtDecode(formattedToken);
+    const decoded: CustomJwtPayload = jwtDecode(formattedToken);
 
     // Map các giá trị từ decoded token sang interface DecodedToken
     const mappedToken: DecodedToken = {

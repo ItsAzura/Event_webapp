@@ -80,3 +80,35 @@ export interface ContactResponse {
   responseMessage: string;
   adminEmail: string;
 }
+
+export interface User {
+  userID: number;
+  userName: string;
+  email: string;
+  roleID: number;
+}
+
+export type AddUserData = {
+  userName: string;
+  email: string;
+  passwordHash: string;
+};
+
+export type UpdateUserData = {
+  userName: string | null;
+  email: string | null;
+  passwordHash: string | null;
+  roleID: number | null;
+};
+
+export interface AddContactData {
+  name: string;
+  email: string;
+  message: string;
+}
+
+export interface ResponseContactData {
+  id: number;
+  responseMessage: string;
+  adminEmail: string;
+}

@@ -8,11 +8,16 @@ import { ContactSchema } from '@/schemas/contactShema';
 import { createContact } from '@/services/contact/api';
 import { useAuthStore } from '@/store/authStore';
 import { decodeAccessToken } from '@/utils/decodeAccessToken';
+import { AddContactData } from '@/types/index';
 
 export default function ContactForm() {
-  const { accessToken, logout } = useAuthStore();
+  const { accessToken } = useAuthStore();
   const user = decodeAccessToken(accessToken);
-  const [form, setForm] = useState({ name: '', email: '', message: '' });
+  const [form, setForm] = useState<AddContactData>({
+    name: '',
+    email: '',
+    message: '',
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,8 +39,10 @@ export default function ContactForm() {
         toast.error('Có lỗi xảy ra khi gửi tin nhắn!');
         return;
       }
-    } catch (err: any) {
-      toast.error(err.message);
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : 'Có lỗi xảy ra khi gửi tin nhắn!';
+      toast.error(errorMessage);
     }
 
     toast.success('Tin nhắn của bạn đã được gửi thành công!');

@@ -8,6 +8,7 @@ import { useAuthStore } from '@/store/authStore';
 import { decodeAccessToken } from '@/utils/decodeAccessToken';
 import { getAllContacts, answerContact } from '@/services/contact/api';
 import { toast } from 'react-toastify';
+import { ResponseContactData } from '@/types/index';
 
 export default function ContactAdminPage() {
   const { accessToken } = useAuthStore();
@@ -15,7 +16,11 @@ export default function ContactAdminPage() {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [open, setOpen] = useState(false);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
-  const [responseMessage, setResponseMessage] = useState('');
+  const [responseMessage, setResponseMessage] = useState<ResponseContactData>({
+    id: 0,
+    responseMessage: '',
+    adminEmail: '',
+  });
 
   const fetchContacts = async () => {
     try {
@@ -36,7 +41,11 @@ export default function ContactAdminPage() {
 
   const handleOpenPopup = (contact: Contact) => {
     setSelectedContact(contact);
-    setResponseMessage('');
+    setResponseMessage({
+      id: contact.id,
+      responseMessage: '',
+      adminEmail: user?.email || '',
+    });
     setOpen(true);
   };
 
@@ -44,10 +53,10 @@ export default function ContactAdminPage() {
     if (!selectedContact) return;
 
     try {
-      const response = await answerContact(selectedContact.id.toString(), {
+      const response = await answerContact(
+        selectedContact.id.toString(),
         responseMessage,
-        adminEmail: user?.email,
-      });
+      );
       if (response.status !== 200) {
         toast.error('Failed to send contact');
         return;
@@ -182,8 +191,13 @@ export default function ContactAdminPage() {
                   className="w-full rounded-xl border border-white/10 bg-gray-800/50 p-4 text-white backdrop-blur-lg placeholder:text-gray-500 focus:border-purple-500/30 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
                   placeholder="Type your response..."
                   rows={5}
-                  value={responseMessage}
-                  onChange={e => setResponseMessage(e.target.value)}
+                  value={responseMessage.responseMessage}
+                  onChange={e =>
+                    setResponseMessage({
+                      ...responseMessage,
+                      responseMessage: e.target.value,
+                    })
+                  }
                 />
               </div>
 
@@ -201,7 +215,7 @@ export default function ContactAdminPage() {
                   whileTap={{ scale: 0.95 }}
                   className="rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 px-6 py-2 text-white shadow-lg transition-all hover:shadow-blue-500/30 disabled:opacity-50"
                   onClick={handleSendContact}
-                  disabled={!responseMessage.trim()}
+                  disabled={!responseMessage.responseMessage}
                 >
                   Send Response
                 </motion.button>
