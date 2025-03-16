@@ -28,3 +28,37 @@ export const getEventById = async (id: number) => {
     throw error;
   }
 };
+
+export const getEventByUserId = async (
+  id: string,
+  page: number = 1,
+  pageSize: number = 10,
+  categoryId?: number,
+  search?: string,
+) => {
+  try {
+    const response = await api.get(`/Event/user/${id}`, {
+      params: { page, pageSize, categoryId, search },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Get event by user id error', error);
+    throw error;
+  }
+};
+
+export const createEvent = async (data: FormData) => {
+  try {
+    const response = await api.post('/Event', data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    return response;
+  } catch (error) {
+    console.error('Create event error', error);
+    throw error;
+  }
+};

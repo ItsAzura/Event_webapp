@@ -1,5 +1,3 @@
-// app/events/page.tsx (Server Component - Không cần 'use client')
-
 import { Event, Category, ApiResponse } from '@/types/index';
 import { getAllCategories } from '@/services/category/api';
 import { getEvents } from '@/services/event/api';
@@ -32,6 +30,8 @@ export default async function EventsPage({
 
   return (
     <EventsClient
+      name={'Khu Vực Sự Kiện'}
+      eventAreaUrl="events"
       eventsData={eventsData}
       categories={categories}
       searchParams={searchParams}

@@ -14,12 +14,16 @@ import { Category, ApiResponse } from '@/types/index';
 import Image from 'next/image';
 
 interface EventsClientProps {
+  name: string;
+  eventAreaUrl: string;
   eventsData: ApiResponse;
   categories: Category[];
   searchParams: { [key: string]: string | undefined };
 }
 
 export default function EventsClient({
+  name,
+  eventAreaUrl,
   eventsData,
   categories,
   searchParams,
@@ -51,7 +55,7 @@ export default function EventsClient({
         >
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-3xl" />
           <h1 className="relative mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-6xl font-bold text-transparent md:text-7xl">
-            <span className="mb-2 block">Khu Vực Sự Kiện</span>
+            <span className="mb-2 block">{name}</span>
             <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-4xl font-medium text-transparent md:text-5xl">
               Nơi Khoảnh khắc Được Tạo Ra
             </span>
@@ -62,9 +66,11 @@ export default function EventsClient({
           >
             <div className="group relative">
               <div className="absolute -inset-1 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 opacity-25 blur transition duration-1000 group-hover:opacity-40 group-hover:duration-200" />
-              <button className="relative rounded-lg bg-white px-8 py-3 text-lg font-semibold text-gray-900 shadow-lg transition-all dark:bg-gray-800 dark:text-gray-100">
-                🎉 Bắt đầu khám phá
-              </button>
+              <Link href={`/events/createevent`}>
+                <button className="relative rounded-lg bg-white px-8 py-3 text-lg font-semibold text-gray-900 shadow-lg transition-all dark:bg-gray-800 dark:text-gray-100">
+                  🎉 Bắt đầu khám phá
+                </button>
+              </Link>
             </div>
           </motion.div>
         </motion.div>
@@ -202,7 +208,7 @@ export default function EventsClient({
                     className="mt-6 flex items-center gap-2"
                   >
                     <Link
-                      href={`/events/${event.eventID}`}
+                      href={`/${eventAreaUrl}/${event.eventID}`}
                       className="flex items-center text-lg font-semibold text-blue-600 transition-colors hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                     >
                       Discover More

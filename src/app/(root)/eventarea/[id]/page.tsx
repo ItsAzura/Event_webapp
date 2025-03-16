@@ -33,7 +33,6 @@ const EventDetailPage = () => {
     eventAreaID: 0,
     areaName: '',
     capacity: 0,
-    price: 0,
   });
 
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -105,7 +104,9 @@ const EventDetailPage = () => {
             </div>
             <div className="flex items-center rounded-full bg-white px-4 py-2 shadow-md">
               <MapPinIcon className="mr-2 h-5 w-5 text-purple-600" />
-              <span className="font-medium text-slate-700">Zone A</span>
+              <span className="font-medium text-slate-700">
+                {eventArea.areaName}
+              </span>
             </div>
           </motion.div>
         </motion.div>

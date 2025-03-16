@@ -14,10 +14,21 @@
   }
 }
 
+body,
+main {
+  overflow: visible;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
 @layer utilities {
