@@ -1,7 +1,7 @@
 import React from 'react';
 
-const EventAreaDetail = () => {
-  return <div>EventAreaDetail</div>;
+const EventAreaDetails = () => {
+  return <div>EventAreaDetails</div>;
 };
 
-export default EventAreaDetail;
+export default EventAreaDetails;

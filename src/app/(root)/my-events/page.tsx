@@ -32,7 +32,7 @@ const MyEventPage = async ({
   return (
     <EventsClient
       name={'Khu Vực Sự Kiện Của Bạn'}
-      eventAreaUrl="my-events/event-area"
+      eventAreaUrl="my-events"
       eventsData={eventsData}
       categories={categories}
       searchParams={searchParams}

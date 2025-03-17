@@ -62,3 +62,23 @@ export const createEvent = async (data: FormData) => {
     throw error;
   }
 };
+
+export const updateEvent = async (id: number, data: FormData) => {
+  try {
+    return await api.put(`/Event/${id}`, data, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  } catch (error: any) {
+    console.error('Update event error:', error);
+    return { status: error.response?.status || 500, error };
+  }
+};
+
+export const deleteEvent = async (id: number) => {
+  try {
+    return await api.delete(`/Event/${id}`);
+  } catch (error: any) {
+    console.error('Delete event error:', error);
+    return { status: error.response?.status || 500, error };
+  }
+};

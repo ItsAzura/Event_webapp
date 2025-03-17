@@ -112,3 +112,11 @@ export interface ResponseContactData {
   responseMessage: string;
   adminEmail: string;
 }
+
+export type EventFormData = {
+  EventName: string;
+  EventDescription: string;
+  EventDate: string;
+  EventLocation: string;
+  EventImageFile: FileList;
+};

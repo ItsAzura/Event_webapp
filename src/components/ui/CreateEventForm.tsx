@@ -6,14 +6,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import Image from 'next/image';
 import { createEvent } from '@/services/event/api';
 import { toast } from 'react-toastify';
-
-type EventFormData = {
-  EventName: string;
-  EventDescription: string;
-  EventDate: string;
-  EventLocation: string;
-  EventImageFile: FileList;
-};
+import { EventFormData } from '@/types/index';
 
 export default function CreateEventForm({ userId }: { userId: string }) {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -72,6 +65,7 @@ export default function CreateEventForm({ userId }: { userId: string }) {
       setFormError(
         error instanceof Error ? error.message : 'Something went wrong',
       );
+      toast.error('Có lỗi xảy ra khi tạo sự kiện');
     } finally {
       setIsSubmitting(false);
     }
