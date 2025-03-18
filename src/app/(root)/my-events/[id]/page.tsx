@@ -1,12 +1,18 @@
 'use client';
 
-import { Category } from '@/types/index';
+import { Category, EventArea } from '@/types/index';
 import { getEventById } from '@/services/event/api';
-import react, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { toast } from 'react-toastify';
 import { updateEvent, deleteEvent } from '@/services/event/api';
 import { useRouter } from 'next/navigation';
+import {
+  getEventAreasByEventId,
+  createEventArea,
+} from '@/services/eventarea/api';
+import { formatDate } from '@/utils/dateFormat';
+import Link from 'next/link';
 
 interface Event {
   eventID: number;
@@ -33,11 +39,21 @@ const EventDetail = () => {
     eventImage: '',
     eventCategories: [],
   });
+  const [eventAreas, setEventAreas] = useState<EventArea[]>([]);
+
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [formData, setFormData] = useState<Partial<Event>>({});
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const [isCreateAreaModalOpen, setIsCreateAreaModalOpen] = useState(false);
+  const [newAreaData, setNewAreaData] = useState({
+    eventID: Number(id),
+    areaName: '',
+    capacity: 0,
+  });
+  const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -63,7 +79,23 @@ const EventDetail = () => {
         console.error('Fetch event error', error);
       }
     };
+
+    const fetchEventAreas = async () => {
+      try {
+        const response = await getEventAreasByEventId(Number(id));
+        if (response.status !== 200) {
+          toast.error('Lỗi khi lấy dữ liệu khu vực sự kiện');
+          return;
+        }
+
+        setEventAreas(response.data);
+      } catch (error) {
+        console.error('Fetch event areas error', error);
+      }
+    };
+
     fetchEvent();
+    fetchEventAreas();
   }, [id]);
 
   const formatISOForDateTimeLocal = (isoString: string) => {
@@ -183,130 +215,157 @@ const EventDetail = () => {
     }
   };
 
+  const handleCreateArea = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsCreating(true);
+    try {
+      const response = await createEventArea({
+        eventID: newAreaData.eventID,
+        areaName: newAreaData.areaName,
+        capacity: newAreaData.capacity,
+      });
+
+      console.log('Create area response:', response);
+
+      if (response.status === 201) {
+        toast.success('Tạo khu vực thành công');
+        // Refresh data
+        const updatedAreas = await getEventAreasByEventId(Number(id));
+        setEventAreas(updatedAreas.data);
+        setIsCreateAreaModalOpen(false);
+        setNewAreaData({
+          eventID: Number(id),
+          areaName: '',
+          capacity: 0,
+        });
+      }
+    } catch (error) {
+      toast.error('Tạo khu vực thất bại');
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Event Image Header */}
-      <div className="relative h-96 overflow-hidden">
-        <img
-          src={`https://localhost:7198/api/event/images/${event.eventImage}`}
-          alt={event.eventName}
-          className="h-full w-full object-cover object-center"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-900/75" />
-      </div>
+      <div className="relative">
+        {/* Event Banner */}
+        <div className="relative h-[500px] overflow-hidden rounded-b-3xl shadow-lg">
+          <img
+            src={`https://localhost:7198/api/event/images/${event.eventImage}`}
+            alt={event.eventName}
+            className="h-full w-full object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+        </div>
 
-      {/* Main Content */}
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="relative -mt-24 rounded-2xl bg-white p-8 shadow-xl">
-          {/* Action Buttons */}
-          <div className="absolute right-6 top-6 flex gap-3">
-            <button
-              onClick={handleEditClick}
-              className="rounded-lg bg-blue-100 p-2 transition-colors hover:bg-blue-200"
-            >
-              <svg
-                className="h-6 w-6 text-blue-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+        {/* Main Content */}
+        <div className="mx-auto max-w-7xl px-6 py-12">
+          <div className="relative -mt-28 rounded-3xl bg-white/80 p-10 shadow-xl backdrop-blur-lg">
+            {/* Action Buttons */}
+            <div className="absolute right-6 top-6 flex gap-3">
+              <button
+                onClick={handleEditClick}
+                className="rounded-lg bg-blue-600 p-2 text-white shadow-md transition-all hover:scale-105 hover:bg-blue-700"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                />
-              </svg>
-            </button>
-            <button
-              onClick={handleDeleteClick}
-              className="rounded-lg bg-red-100 p-2 transition-colors hover:bg-red-200"
-            >
-              <svg
-                className="h-6 w-6 text-red-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+                ✎
+              </button>
+              <button
+                onClick={handleDeleteClick}
+                className="rounded-lg bg-red-600 p-2 text-white shadow-md transition-all hover:scale-105 hover:bg-red-700"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                />
-              </svg>
-            </button>
-          </div>
+                🗑
+              </button>
+            </div>
 
-          {/* Event Info */}
-          <div className="space-y-8">
-            <div className="space-y-4">
-              <h1 className="text-4xl font-bold text-gray-900">
+            {/* Event Info */}
+            <div className="space-y-8">
+              <h1 className="text-5xl font-bold text-gray-900">
                 {event.eventName}
               </h1>
 
-              <div className="flex items-center gap-4 text-gray-600">
-                <div className="flex items-center gap-2">
-                  <svg
-                    className="h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  <span>{event.eventDate}</span>
+              <div className="flex flex-wrap items-center gap-6 text-gray-700">
+                <div className="flex items-center gap-2 text-lg">
+                  ⏳ <span>{formatDate(event.eventDate)}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <svg
-                    className="h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                  <span>{event.eventLocation}</span>
+                <div className="flex items-center gap-2 text-lg">
+                  📍 <span>{event.eventLocation}</span>
                 </div>
               </div>
-            </div>
 
-            {/* Categories */}
-            <div className="flex flex-wrap gap-2">
-              {event.eventCategories.map(ec => (
-                <span
-                  key={ec.category.categoryID}
-                  className="rounded-full bg-purple-100 px-3 py-1 text-sm text-purple-800"
-                >
-                  {ec.category.categoryName}
-                </span>
-              ))}
-            </div>
+              {/* Categories */}
+              <div className="flex flex-wrap gap-2">
+                {event.eventCategories.map(ec => (
+                  <span
+                    key={ec.category.categoryID}
+                    className="rounded-full bg-indigo-100 px-3 py-1 text-sm font-medium text-indigo-700 shadow-sm"
+                  >
+                    {ec.category.categoryName}
+                  </span>
+                ))}
+              </div>
 
-            {/* Description */}
-            <div className="prose max-w-none">
-              <h3 className="mb-4 text-xl font-semibold text-gray-900">
-                Chi tiết sự kiện
+              {/* Description */}
+              <div className="prose max-w-none text-gray-800">
+                <h3 className="mb-4 text-2xl font-semibold">
+                  Chi tiết sự kiện
+                </h3>
+                <p className="leading-relaxed">{event.eventDescription}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Event Areas */}
+          <div className="mt-10">
+            <div className="flex items-center justify-between">
+              <h3 className="text-2xl font-semibold text-gray-900">
+                Các khu vực
               </h3>
-              <p className="leading-relaxed text-gray-600">
-                {event.eventDescription}
-              </p>
+              <button
+                onClick={() => setIsCreateAreaModalOpen(true)}
+                className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white shadow-md transition-all hover:scale-105 hover:bg-green-700"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                Thêm khu vực
+              </button>
+            </div>
+            <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {eventAreas.map(area => (
+                <div
+                  key={area.eventAreaID}
+                  className="flex flex-col justify-between rounded-2xl border bg-white p-6 shadow-md transition-all hover:shadow-xl"
+                >
+                  <div>
+                    <h4 className="text-lg font-medium text-gray-900">
+                      {area.areaName}
+                    </h4>
+                    <p className="mt-1 text-sm text-gray-600">
+                      Sức chứa: {area.capacity} người
+                    </p>
+                  </div>
+                  <Link href={`/my-events/event-area/${area.eventAreaID}`}>
+                    <button className="mt-4 w-full rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white transition-all hover:bg-blue-700">
+                      Xem chi tiết
+                    </button>
+                  </Link>
+                </div>
+              ))}
+              {!eventAreas.length && (
+                <div className="col-span-full py-6 text-center text-gray-500">
+                  Chưa có khu vực nào được thiết lập
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -442,6 +501,92 @@ const EventDetail = () => {
                 Xác nhận xóa
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Area Modal */}
+      {isCreateAreaModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+            <h2 className="text-2xl font-bold text-gray-900">
+              Tạo khu vực mới
+            </h2>
+
+            <form onSubmit={handleCreateArea} className="mt-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Tên khu vực
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={newAreaData.areaName}
+                  onChange={e =>
+                    setNewAreaData(prev => ({
+                      ...prev,
+                      areaName: e.target.value,
+                    }))
+                  }
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Sức chứa
+                </label>
+                <input
+                  type="number"
+                  required
+                  min="1"
+                  value={newAreaData.capacity || ''}
+                  onChange={e =>
+                    setNewAreaData(prev => ({
+                      ...prev,
+                      capacity: Number(e.target.value),
+                    }))
+                  }
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setIsCreateAreaModalOpen(false)}
+                  className="rounded-lg px-4 py-2 text-gray-600 hover:bg-gray-100"
+                  disabled={isCreating}
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 disabled:opacity-50"
+                  disabled={isCreating}
+                >
+                  {isCreating && (
+                    <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24">
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        fill="none"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
+                    </svg>
+                  )}
+                  Tạo khu vực
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
