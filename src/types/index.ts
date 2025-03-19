@@ -1,3 +1,5 @@
+import { JSX } from 'react';
+
 //Type for Register
 export type RegisterData = {
   userName: string;
