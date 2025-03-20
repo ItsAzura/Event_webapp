@@ -122,3 +122,23 @@ export type EventFormData = {
   EventLocation: string;
   EventImageFile: FileList;
 };
+
+export interface CartItem {
+  ticketName: string;
+  ticketID: string;
+  quantity: number;
+  price: number;
+}
+
+export interface CartState {
+  cart: CartItem[];
+  addToCart: (
+    ticketName: string,
+    ticketID: string,
+    quantity: number,
+    price: number,
+  ) => void;
+  updateQuantity: (ticketID: string, quantity: number) => void;
+  removeFromCart: (ticketID: string) => void;
+  clearCart: () => void;
+}

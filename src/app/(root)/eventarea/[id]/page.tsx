@@ -13,6 +13,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { EventArea, Ticket } from '@/types/index';
 import { getEventAreaById } from '@/services/eventarea/api';
 import { getAllTicketsByEventAreaId } from '@/services/ticket/api';
+import { useCartStore } from '@/store/cartStore';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -219,6 +220,16 @@ const EventDetailPage = () => {
                             : 'cursor-not-allowed bg-slate-300 text-slate-500'
                         }`}
                         disabled={ticket.status !== 'Available'}
+                        onClick={() =>
+                          useCartStore
+                            .getState()
+                            .addToCart(
+                              ticket.ticketName.toString(),
+                              ticket.ticketID.toString(),
+                              1,
+                              ticket.price,
+                            )
+                        }
                       >
                         {ticket.status === 'Available'
                           ? 'Book Now'

@@ -36,6 +36,9 @@ const Header = () => {
             Admin
           </Link>
         )}
+        <Link href="/my-ticket" className="hover:text-blue-600">
+          Vé của tôi
+        </Link>
       </nav>
 
       <div>
