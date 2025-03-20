@@ -4,16 +4,28 @@ import React, { useEffect, useState } from 'react';
 import { Category } from '@/types';
 import { randomEventNumber } from '@/utils/randomEventNumber';
 import { randomIcon } from '@/utils/randomIcon';
+import Loading from '../Shared/Loading';
 
 const PopularCategory = () => {
   const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchCategories = async () => {
     try {
       const response = await fetch('https://localhost:7198/api/Category/top');
+      if (!response.ok) {
+        throw new Error('Failed to fetch categories');
+      }
       const data = await response.json();
       setCategories(data);
-    } catch (error) {}
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'An unknown error occurred',
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -56,6 +68,9 @@ const PopularCategory = () => {
       },
     },
   };
+
+  if (loading) return <Loading label="Đang tải danh mục" color="purple" />;
+  if (error) return <div className="text-red-500">{error}</div>;
 
   return (
     <section className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-24">

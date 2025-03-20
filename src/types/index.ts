@@ -68,6 +68,19 @@ export interface Ticket {
   eventArea: null;
 }
 
+export interface RegistrationDetail {
+  registrationDetailID: number;
+  quantity: number;
+  ticket: Ticket;
+}
+
+export interface Registration {
+  registrationID: number;
+  registrationDate: string;
+  paymentDate: string;
+  registrationDetails: RegistrationDetail[];
+}
+
 export interface Contact {
   id: number;
   name: string;
@@ -140,5 +153,7 @@ export interface CartState {
   ) => void;
   updateQuantity: (ticketID: string, quantity: number) => void;
   removeFromCart: (ticketID: string) => void;
+  increaseQuantity: (ticketID: string) => void;
+  decreaseQuantity: (ticketID: string) => void;
   clearCart: () => void;
 }

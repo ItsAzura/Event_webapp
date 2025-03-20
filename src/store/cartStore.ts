@@ -45,6 +45,25 @@ export const useCartStore = create<CartState>()(
           cart: state.cart.filter(item => item.ticketID !== ticketID),
         })),
 
+      increaseQuantity: ticketID =>
+        set(state => ({
+          cart: state.cart.map(item =>
+            item.ticketID === ticketID
+              ? { ...item, quantity: item.quantity + 1 }
+              : item,
+          ),
+        })),
+      decreaseQuantity: ticketID =>
+        set(state => ({
+          cart: state.cart
+            .map(item =>
+              item.ticketID === ticketID
+                ? { ...item, quantity: item.quantity - 1 }
+                : item,
+            )
+            .filter(item => item.quantity > 0), // Xoá vé nếu số lượng = 0
+        })),
+
       clearCart: () => set({ cart: [] }),
     }),
     {

@@ -5,13 +5,28 @@ import { useEffect } from 'react';
 import { useEventStore } from '@/store/eventStore';
 import Image from 'next/image';
 import { dateFormat } from '@/utils/dateFormat';
+import Loading from '../Shared/Loading';
 
 const OutstandingEvent = () => {
   const { topEvents, fetchTopEvents } = useEventStore();
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+
+  const fetchEvents = async () => {
+    try {
+      await fetchTopEvents();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'An unknown error occurred',
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    fetchTopEvents();
-  }, [fetchTopEvents]);
+    fetchEvents();
+  }, []);
 
   // Animation variants
   const container = {
@@ -48,6 +63,26 @@ const OutstandingEvent = () => {
       },
     },
   };
+
+  if (loading) {
+    return (
+      <section className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-24">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <Loading size="lg" label="Đang tải sự kiện nổi bật..." />
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-24">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="text-red-500">{error}</div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-24">

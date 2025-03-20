@@ -2,6 +2,7 @@ import { Event, Category, ApiResponse } from '@/types/index';
 import { getAllCategories } from '@/services/category/api';
 import { getEvents } from '@/services/event/api';
 import EventsClient from '@/components/ui/EventsClient';
+import Loading from '@/components/Shared/Loading';
 
 export default async function EventsPage({
   searchParams,

@@ -14,3 +14,18 @@ export const createRegistration = async (data: any) => {
     throw error;
   }
 };
+
+export const getRegistrationByUserId = async (userId: string) => {
+  try {
+    const response = await api.get(`/Registrations/user/${userId}`);
+
+    if (response.status !== 200) {
+      throw new Error('Failed to fetch registrations');
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error('Get registrations error', error);
+    throw error;
+  }
+};

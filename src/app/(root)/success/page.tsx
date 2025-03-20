@@ -25,7 +25,7 @@ const SuccessPage = () => {
     const registrationId = searchParams.get('registrationId');
     if (registrationId) {
       console.log('Payment successful for Registration ID:', registrationId);
-      clearCart(); // ✅ Xoá giỏ vé khi thanh toán thành công
+      clearCart();
     }
   }, [searchParams]);
 
