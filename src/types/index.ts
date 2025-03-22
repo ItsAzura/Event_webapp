@@ -1,3 +1,4 @@
+import { create } from 'zustand';
 import { JSX } from 'react';
 
 //Type for Register
@@ -156,4 +157,23 @@ export interface CartState {
   increaseQuantity: (ticketID: string) => void;
   decreaseQuantity: (ticketID: string) => void;
   clearCart: () => void;
+}
+
+export type Profile = {
+  userID: number;
+  userName: string;
+  avatarUrl: string | null;
+  PasswordHash: string | null;
+  email: string;
+  roleID: number;
+  createdAt: string;
+};
+
+export interface feedBack {
+  id: number;
+  eventId: number;
+  comment: string;
+  rating: number;
+  createdAt: string;
+  userId: number;
 }
