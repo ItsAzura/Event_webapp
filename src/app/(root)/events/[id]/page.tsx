@@ -257,7 +257,7 @@ const page = () => {
               className="relative overflow-hidden rounded-xl shadow-lg"
             >
               <img
-                src={`https://localhost:7198/api/event/images/${event.eventImage}`}
+                src={`https://localhost:7198/api/v1/event/images/${event.eventImage}`}
                 alt={event.eventName}
                 className="h-96 w-full object-cover"
               />

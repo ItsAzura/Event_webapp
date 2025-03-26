@@ -126,7 +126,7 @@ const OutstandingEvent = () => {
                 <motion.div variants={hoverVariants} className="relative h-80">
                   <Image
                     unoptimized
-                    src={`https://localhost:7198/api/event/images/${event.eventImage}`}
+                    src={`https://localhost:7198/api/v1/event/images/${event.eventImage}`}
                     alt={event.eventName}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-110"

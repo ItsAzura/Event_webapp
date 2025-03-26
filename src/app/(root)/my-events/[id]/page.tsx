@@ -73,7 +73,7 @@ const EventDetail = () => {
 
         // Khởi tạo image preview
         setImagePreview(
-          `https://localhost:7198/api/event/images/${response.data.eventImage}`,
+          `https://localhost:7198/api/v1/event/images/${response.data.eventImage}`,
         );
       } catch (error) {
         console.error('Fetch event error', error);
@@ -111,7 +111,7 @@ const EventDetail = () => {
       eventDate: formatISOForDateTimeLocal(event.eventDate),
     });
     setImagePreview(
-      `https://localhost:7198/api/event/images/${event.eventImage}`,
+      `https://localhost:7198/api/v1/event/images/${event.eventImage}`,
     );
   };
 
@@ -181,7 +181,7 @@ const EventDetail = () => {
         }));
 
         setImagePreview(
-          `https://localhost:7198/api/event/images/${updatedEvent.data.eventImage}`,
+          `https://localhost:7198/api/v1/event/images/${updatedEvent.data.eventImage}`,
         );
       }
 
@@ -252,7 +252,7 @@ const EventDetail = () => {
         {/* Event Banner */}
         <div className="relative h-[500px] overflow-hidden rounded-b-3xl shadow-lg">
           <img
-            src={`https://localhost:7198/api/event/images/${event.eventImage}`}
+            src={`https://localhost:7198/api/v1/event/images/${event.eventImage}`}
             alt={event.eventName}
             className="h-full w-full object-cover object-center"
           />

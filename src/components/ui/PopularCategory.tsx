@@ -13,7 +13,9 @@ const PopularCategory = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('https://localhost:7198/api/Category/top');
+      const response = await fetch(
+        'https://localhost:7198/api/v1/Category/top',
+      );
       if (!response.ok) {
         throw new Error('Failed to fetch categories');
       }

@@ -8,6 +8,7 @@ interface AuthState {
   refreshToken: string | null;
   login: (email: string, passwordHash: string) => Promise<void>;
   logout: () => Promise<void>;
+  googleLogin: (tokenId: any) => Promise<void>;
   initializeFromCookies: () => void;
 }
 
@@ -59,6 +60,38 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       );
     } catch (error) {
       console.error('Lỗi đăng nhập:', error);
+    }
+  },
+
+  googleLogin: async (tokenId: any) => {
+    try {
+      const response = await api.post<{
+        accessToken: string;
+        refreshToken: string;
+      }>('/auth/google-login', { tokenId });
+
+      // Lưu token vào cookie
+      setCookie(null, 'accessToken', response.data.accessToken, {
+        maxAge: 7 * 24 * 60 * 60,
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      });
+
+      setCookie(null, 'refreshToken', response.data.refreshToken, {
+        maxAge: 7 * 24 * 60 * 60,
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      });
+
+      // Cập nhật Zustand store
+      set({
+        accessToken: response.data.accessToken,
+        refreshToken: response.data.refreshToken,
+      });
+
+      console.log('Đăng nhập bằng Google thành công');
+    } catch (error) {
+      console.error('Lỗi đăng nhập Google:', error);
     }
   },
 

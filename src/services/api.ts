@@ -4,7 +4,7 @@ import { parseCookies, setCookie } from 'nookies';
 import https from 'https';
 
 // Địa chỉ API
-const API_URL = 'https://localhost:7198/api';
+const API_URL = 'https://localhost:7198/api/v1';
 
 // cấu hình axios
 const api = axios.create({

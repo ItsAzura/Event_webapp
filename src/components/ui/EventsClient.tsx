@@ -167,7 +167,7 @@ export default function EventsClient({
                 <div className="relative h-48 bg-gradient-to-br from-blue-400 to-purple-500">
                   <Image
                     unoptimized
-                    src={`https://localhost:7198/api/event/images/${event.eventImage}`}
+                    src={`https://localhost:7198/api/v1/event/images/${event.eventImage}`}
                     alt={event.eventName}
                     fill
                     className="transform object-cover transition-transform duration-300 group-hover:scale-105"

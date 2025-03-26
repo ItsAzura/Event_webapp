@@ -36,7 +36,7 @@ export const useEventStore = create<EventState>(set => ({
   fetchEvents: async (page = 1, pageSize = 10, categoryId, search) => {
     set({ loading: true });
     try {
-      const response = await axios.get('https://localhost:7198/api/event', {
+      const response = await axios.get('https://localhost:7198/api/v1/event', {
         params: { page, pageSize, categoryId, search },
       });
       const data = response.data as { Events: Event[] };
@@ -61,7 +61,7 @@ export const useEventStore = create<EventState>(set => ({
   getEventById: async (id: number): Promise<Event | null> => {
     try {
       const response = await axios.get(
-        `https://localhost:7198/api/event/${id}`,
+        `https://localhost:7198/api/v1/event/${id}`,
       );
       return response.data as Event;
     } catch (error) {
@@ -82,7 +82,7 @@ export const useEventStore = create<EventState>(set => ({
     }
 
     try {
-      await axios.put(`https://localhost:7198/api/event/${id}`, formData, {
+      await axios.put(`https://localhost:7198/api/v1/event/${id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           // Nếu cần token: Authorization: `Bearer ${token}`,
@@ -96,7 +96,7 @@ export const useEventStore = create<EventState>(set => ({
 
   deleteEvent: async (id: number) => {
     try {
-      await axios.delete(`https://localhost:7198/api/event/${id}`, {
+      await axios.delete(`https://localhost:7198/api/v1/event/${id}`, {
         headers: {
           // Nếu cần token: Authorization: `Bearer ${token}`,
         },
